@@ -6,15 +6,13 @@ env:
 
 on:
   push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
   build:
 
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    #runs-on: self-hosted
 
     steps:
       - uses: actions/checkout@v3
@@ -37,18 +35,18 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      #- name: Setup Android SDK
+      #  uses: android-actions/setup-android@v3
 
-      #- name: Maximize build space
-      #  uses: easimon/maximize-build-space@master
-      #  with:
-      #    root-reserve-mb: 512
-      #    swap-size-mb: 1024
-      #    overprovision-lvm: 'true'
-      #    remove-haskell: 'true'
-      #    remove-codeql: 'true'
-      #    remove-docker-images: 'true'
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          overprovision-lvm: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
 
       # Run Tests Build
       - name: Run gradle tests
