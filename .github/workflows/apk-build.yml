@@ -8,11 +8,10 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    # runs-on: self-hosted
 
     steps:
       - name: Maximize build space
-        uses: easimon/maximize-build-space@master
+        uses: easimon/maximize-build-space@v10
         with:
           root-reserve-mb: 512
           swap-size-mb: 1024
@@ -22,29 +21,17 @@ jobs:
           remove-docker-images: 'true'
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.0
 
       - name: Set Up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.4.0
         with:
-          distribution: 'zulu' # See 'Supported distributions' for available options
-          java-version: '17'
+          distribution: 'oracle'
+          java-version: '23'
           cache: 'gradle'
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
-
-      # - name: Setup Android SDK
-      #  uses: android-actions/setup-android@v3
-
-      - name: Check free space
-        run: |
-          echo "Free space:"
-          df -h
-
-      # Run Tests Build
-      - name: Run gradle tests
-        run: ./gradlew test
 
       - name: Check free space
         run: |
@@ -61,17 +48,26 @@ jobs:
           df -h
 
       # Create APK Release
-      - name: Build apk release project (APK)
-        run: ./gradlew assemble
+      - name: Build apk
+        run: ./gradlew assembleFullRelease
 
       - name: Check free space
         run: |
           echo "Free space:"
           df -h
 
+      - name: Sign app APK
+        uses: r0adkll/sign-android-release@v1
+        id: sign_app
+        with:
+        releaseDirectory: /build/outputs/apk/release
+        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+        alias: ${{ secrets.ALIAS }}
+        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+
       # Upload Artifact Build
       - name: Upload APK Release
         uses: actions/upload-artifact@v4
         with:
           name: app-full-release
-          path: /build/outputs/apk/release/
+          path: ${{steps.sign_app.outputs.signedReleaseFile}}
