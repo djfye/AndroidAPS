@@ -49,7 +49,7 @@ jobs:
 
       # Create APK Release
       - name: Build apk
-        run: ./gradlew assembleFullRelease
+        run: ./gradlew assembleRelease
 
       - name: Check free space
         run: |
@@ -60,10 +60,10 @@ jobs:
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
-        releaseDirectory: app/build/outputs/apk/release
-        signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-        alias: ${{ secrets.ALIAS }}
-        keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          releaseDirectory: build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.ANDROID_SIGNING_KEY }}
+          alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          keyStorePassword: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
 
       # Upload Artifact Build
       - name: Upload APK Release
