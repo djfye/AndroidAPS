@@ -26,8 +26,6 @@ jobs:
           # remove-haskell: 'true'
           # remove-codeql: 'true'
           # remove-docker-images: 'true'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
 
       - uses: actions/checkout@v3
 
@@ -48,6 +46,9 @@ jobs:
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
       # Run Tests Build
       - name: Run gradle tests
