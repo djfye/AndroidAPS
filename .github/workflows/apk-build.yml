@@ -38,6 +38,15 @@ jobs:
           echo "Free space:"
           df -h
 
+      # Run Test Build
+      - name: Run gradle tests
+        run: ./gradlew test
+
+      - name: Check free space
+        run: |
+          echo "Free space:"
+          df -h
+
       # Run Build Project
       - name: Build gradle project
         run: ./gradlew build
@@ -47,16 +56,16 @@ jobs:
           echo "Free space:"
           df -h
 
-      # Create APK Release
+      # Create apk Release
       - name: Build apk
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleFullRelease
 
       - name: Check free space
         run: |
           echo "Free space:"
           df -h
 
-      - name: Sign app APK
+      - name: Sign app apk
         uses: r0adkll/sign-android-release@v1
         id: sign_app
         with:
