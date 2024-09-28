@@ -20,6 +20,9 @@ jobs:
           root-reserve-mb: 512
           swap-size-mb: 1024
           overprovision-lvm: 'true'
+          remove-haskell: 'true'
+          remove-codeql: 'true'
+          remove-docker-images: 'true'
 
       - uses: actions/checkout@v3
 
