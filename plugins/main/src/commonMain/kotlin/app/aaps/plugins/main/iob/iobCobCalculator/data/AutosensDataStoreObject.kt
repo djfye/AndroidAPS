@@ -102,6 +102,34 @@ class AutosensDataStoreObject : AutosensDataStore {
         }
     }
 
+    override fun holdsSameData(gv: GV): Boolean {
+        dataLock.withLock {
+            val held = bgReadings.firstOrNull { it.id == gv.id } ?: return false
+            // Compare by copying the three fields every write touches from the incoming row, then using
+            // normal equality. A field list would have to be kept in step with what the calculation
+            // reads; this way a field added to GV later is compared without anyone remembering to, and
+            // the worst a mistake can do is one recalculation too many, never one too few.
+            return held.copy(version = gv.version, dateCreated = gv.dateCreated, ids = gv.ids) == gv
+        }
+    }
+
+    override fun pruneOlderThan(time: Long, aapsLogger: AAPSLogger, dateUtil: DateUtil) {
+        dataLock.withLock {
+            val table = autosensDataTable
+            // Count first, delete afterwards, and delete downwards. removeAt() only marks the slot and
+            // the next size() or keyAt() compacts the array, so removing while walking up would skip
+            // every second entry and copy the tail on every step. This is the same direction
+            // newHistoryData uses at the other end of the table.
+            var doomed = 0
+            while (doomed < table.size() && table.keyAt(doomed) < time) doomed++
+            if (doomed == 0) return
+            for (index in doomed - 1 downTo 0) table.removeAt(index)
+            aapsLogger.debug(LTag.AUTOSENS) {
+                "Pruned $doomed entries older than ${dateUtil.dateAndTimeAndSecondsString(time)} from autosensDataTable. Left: ${table.size()}"
+            }
+        }
+    }
+
     // roundup to whole minute
     override fun roundUpTime(time: Long): Long {
         return if (time % 60000 == 0L) time else (time / 60000 + 1) * 60000
